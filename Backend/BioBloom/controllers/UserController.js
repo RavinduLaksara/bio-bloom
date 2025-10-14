@@ -99,7 +99,44 @@ export async function userLogin(req, res) {
     res.status(500).json({ message: "Error", error: e.message });
   }
 }
+
 // otp verification
+export async function verifyOtp(req, res) {
+  try {
+    const { email, otp } = req.body;
+
+    // check email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(409).json({ message: "User not found..." });
+    }
+
+    // compare otp
+    if (user.otp != otp) {
+      return res.status(401).json({ message: "Incorrect OTP" });
+    }
+
+    // account active
+    await User.findByIdAndUpdate({ email }, { isActive: true });
+
+    // create welcome email
+    const msg = {
+      to: user.email,
+      subject: "Welcome to Bioloom",
+      from: process.env.SENDGRID_VERIFIED_EMAIL,
+      templateId: "",
+      dynamic_template_data: { name: user.name },
+    };
+
+    // send welcome email
+    sgMail.setApiKey(process.env.SENGRID_API_KEY);
+    await sgMail.send(msg);
+
+    res.status(200).json({ message: "Account Verified..." });
+  } catch (e) {
+    res.status(500).json({ message: "Error...", error: e.message });
+  }
+}
 // forget password
 // reset password
 
