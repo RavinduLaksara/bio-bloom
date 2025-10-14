@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import DbConnect from "./dbConnect.js";
+import userRoute from "./routes/UserRoute.js";
 
 dotenv.config();
 const app = express();
@@ -14,3 +15,6 @@ DbConnect();
 app.listen(PORT, () => {
   console.log(`Server running on PORT ${PORT}`);
 });
+
+// Routes
+app.use("/api/v1/user", userRoute);

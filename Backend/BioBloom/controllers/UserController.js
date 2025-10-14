@@ -33,7 +33,7 @@ export async function createUser(req, res) {
     const msg = {
       to: newUserData.email,
       from: process.env.SENDGRID_VERIFIED_EMAIL,
-      templateId: "",
+      templateId: "d-c63310a7e75a47e5a31ed9c77a12aa18",
       dynamic_template_data: { otp: newUserData.otp },
     };
     await sgMail.send(msg);
