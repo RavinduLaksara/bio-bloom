@@ -1,5 +1,5 @@
 import express from "express";
-import { createUser } from "../controllers/UserController";
+import { createUser } from "../controllers/UserController.js";
 
 const userRoute = express.Router();
 userRoute.post("/signup", createUser);

@@ -1,4 +1,4 @@
-import User from "../models/UserSchema";
+import User from "../models/UserSchema.js";
 import bcrypt from "bcrypt";
 import sgMail from "@sendgrid/mail";
 import jwt from "jsonwebtoken";
@@ -52,7 +52,7 @@ export async function createUser(req, res) {
     await newUser.save();
     res.status(201).json({ message: "User created...", token: token });
   } catch (e) {
-    res.status(500).json({ message: "Error", error: e });
+    res.status(500).json({ message: "Error", error: e.message });
   }
 }
 // login
