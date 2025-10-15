@@ -33,9 +33,12 @@ export async function createUser(req, res) {
     const msg = {
       to: newUserData.email,
       from: process.env.SENDGRID_VERIFIED_EMAIL,
-      subject: "BioBloom Email Verification OTP",
+
       templateId: "d-c63310a7e75a47e5a31ed9c77a12aa18",
-      dynamic_template_data: { otp: newUserData.otp },
+      dynamic_template_data: {
+        otp: newUserData.otp,
+        subject: "BioBloom Email Verification OTP",
+      },
     };
     await sgMail.send(msg);
 
@@ -116,28 +119,90 @@ export async function verifyOtp(req, res) {
       return res.status(401).json({ message: "Incorrect OTP" });
     }
 
-    // account active
-    await User.findByIdAndUpdate({ email }, { isActive: true });
+    // check new account or old
+    if (!user.isActive) {
+      // account active
+      await User.findOneAndUpdate({ email }, { isActive: true });
 
-    // create welcome email
-    const msg = {
-      to: user.email,
-      subject: "Welcome to Bioloom",
-      from: process.env.SENDGRID_VERIFIED_EMAIL,
-      templateId: "",
-      dynamic_template_data: { name: user.name },
-    };
+      // create welcome email
+      const msg = {
+        to: user.email,
+        from: process.env.SENDGRID_VERIFIED_EMAIL,
+        templateId: "d-8c671df67f99487b84e1dd27aa35d414",
+        dynamic_template_data: {
+          name: user.name,
+          website_url: "",
+          subject: "Welcome to Bioloom",
+        },
+      };
+      // send welcome email
+      sgMail.setApiKey(process.env.SENGRID_API_KEY);
+      await sgMail.send(msg);
 
-    // send welcome email
-    sgMail.setApiKey(process.env.SENGRID_API_KEY);
-    await sgMail.send(msg);
-
-    res.status(200).json({ message: "Account Verified..." });
+      res.status(200).json({ message: "Account Verified..." });
+    } else {
+      res.status(200).json({ message: "Email Verified..." });
+    }
   } catch (e) {
     res.status(500).json({ message: "Error...", error: e.message });
   }
 }
-// forget password
+
+// reset password - verify email
+export async function verifyEmail(req, res) {
+  try {
+    const { email } = req.body;
+
+    // find user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(409).json({ message: "Email not Found..." });
+    }
+
+    // update otp
+    const newOtp = generateOtp();
+    await User.findOneAndUpdate({ email }, { otp: newOtp });
+
+    // create otp email
+    sgMail.setApiKey(process.env.SENGRID_API_KEY);
+    const msg = {
+      to: user.email,
+      from: process.env.SENDGRID_VERIFIED_EMAIL,
+      templateId: "d-c63310a7e75a47e5a31ed9c77a12aa18",
+      dynamic_template_data: {
+        otp: newOtp,
+        subject: "Verify Your Email",
+      },
+    };
+    await sgMail.send(msg);
+    res.status(201).json({ message: "OTP Send succussfully..." });
+  } catch (e) {
+    res.status(500).json({ message: "Error...", error: e.message });
+  }
+}
+
 // reset password
+export async function resetPassword(req, res) {
+  try {
+    const { email, password } = req.body;
+
+    // find user
+    const user = User.findById({ email });
+    if (!user) {
+      return res.status(409).json({ message: "User not found..." });
+    }
+
+    // password salt & hash
+    const salt = await bcrypt.genSalt(10);
+    const newPassword = await bcrypt.hash(password, salt);
+
+    // update password
+    await User.findOneAndUpdate({ email }, { password: newPassword });
+
+    res.status(201).json({ message: "Password Updated..." });
+  } catch (e) {
+    res.status(500).json({ message: "Error...", error: e.message });
+  }
+}
 
 // user - laksararavindum@gmail.com user@123
