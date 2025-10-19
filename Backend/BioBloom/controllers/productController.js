@@ -35,6 +35,14 @@ export async function addProduct(req, res) {
   }
 }
 // get all products
+export async function getAllProducts(req, res) {
+  try {
+    const products = await Products.find();
+    res.status(200).json(products);
+  } catch (e) {
+    res.status(500).jsn({ message: "Error...", error: e });
+  }
+}
 // get deatails of single product
 // update product details
 // Delete product
