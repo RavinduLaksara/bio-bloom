@@ -11,6 +11,15 @@ export async function createUser(req, res) {
   try {
     const newUserData = req.body;
 
+    // check admin or delivery sign up
+    if (["admin", "delivery"].includes(newUserData.role)) {
+      if (!isAdmin()) {
+        return res
+          .status(409)
+          .json({ message: "Sorry! You can't access this feature..." });
+      }
+    }
+
     // check already sign in
     const exitingUser = await User.findOne({ email: newUserData.email });
     if (exitingUser) {
@@ -203,6 +212,17 @@ export async function resetPassword(req, res) {
   } catch (e) {
     res.status(500).json({ message: "Error...", error: e.message });
   }
+}
+
+// check admin token
+export function isAdmin(req) {
+  if (!req.user) {
+    return false;
+  }
+  if (req.user.role != "admin") {
+    return false;
+  }
+  return true;
 }
 
 // user - laksararavindum@gmail.com user@123
