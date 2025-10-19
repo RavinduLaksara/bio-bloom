@@ -226,15 +226,4 @@ export async function resetPassword(req, res) {
   }
 }
 
-// check admin token
-export function isAdmin(req) {
-  if (!req.user) {
-    return false;
-  }
-  if (req.user.role != "admin") {
-    return false;
-  }
-  return true;
-}
-
 // user - laksararavindum@gmail.com user@123
