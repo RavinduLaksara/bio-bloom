@@ -1,4 +1,3 @@
-import products from "../models/ProductSchema.js";
 import Products from "../models/ProductSchema.js";
 
 // add new product
@@ -27,13 +26,14 @@ export async function addProduct(req, res) {
     productData.productId = productId;
 
     // create new product
-    const newProduct = new products(productData);
+    const newProduct = new Products(productData);
     await newProduct.save();
     res.status(201).json({ message: "Successfully added new product!" });
   } catch (e) {
     res.status(500).json({ message: "Error...", error: e });
   }
 }
+
 // get all products
 export async function getAllProducts(req, res) {
   try {
@@ -43,9 +43,34 @@ export async function getAllProducts(req, res) {
     res.status(500).jsn({ message: "Error...", error: e });
   }
 }
-// get deatails of single product
+
+// get details of single product
+export async function getProductById(req, res) {
+  try {
+    const { productId } = req.body;
+    const details = await Products.findById({ productId });
+    res.status(200).json(details);
+  } catch (e) {
+    res.status(500).json({ message: "Error", error: e });
+  }
+}
 // update product details
 // Delete product
+export async function deleteProduct(req, res) {
+  try {
+    const { productId } = req.body;
+
+    // check is Admin
+    if (!isAdmin()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    await Products.findOneAndDelete({ productId });
+    res.status(200).json({ message: "Successfullt Deleted..." });
+  } catch (e) {
+    res.status(500).json({ message: "Error...", error: e });
+  }
+}
 
 // check admin token
 export function isAdmin(req) {
