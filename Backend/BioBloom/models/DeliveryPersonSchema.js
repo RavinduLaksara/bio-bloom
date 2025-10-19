@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
-  userId: {
+const deliveryPersonSchema = new mongoose.Schema({
+  personId: {
     type: String,
     required: true,
     unique: true,
@@ -15,33 +15,21 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  password: {
+  phone_no: {
     type: String,
     required: true,
+    unique: true,
   },
   role: {
     type: String,
     required: true,
-    default: "customer",
-  },
-  phone_no: {
-    type: String,
-  },
-  address: {
-    type: String,
-  },
-  otp: {
-    type: Number,
+    default: "delivery",
   },
   isActive: {
     type: Boolean,
     default: false,
   },
-  avator: {
-    type: String,
-    default: "https://cdn-icons-png.flaticon.com/512/3607/3607444.png",
-  },
 });
 
-const User = mongoose.model("users", userSchema);
-export default User;
+const deliveryPerson = mongoose.model(delivery_person, deliveryPersonSchema);
+export default deliveryPerson;

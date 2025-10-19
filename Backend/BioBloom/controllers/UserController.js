@@ -13,11 +13,9 @@ export async function createUser(req, res) {
 
     // check admin or delivery sign up
     if (["admin", "delivery"].includes(newUserData.role)) {
-      if (!isAdmin()) {
-        return res
-          .status(409)
-          .json({ message: "Sorry! You can't access this feature..." });
-      }
+      return res
+        .status(409)
+        .json({ message: "Sorry! You can't access this feature..." });
     }
 
     // check already sign in
@@ -26,6 +24,20 @@ export async function createUser(req, res) {
       res.status(409).json({ message: "Already Sign Up. Please login..." });
       return;
     }
+
+    // Create user ID
+    const latestUser = await User.find().sort({ createdAt: -1 }).limit(1);
+    let userId;
+
+    if (latestUser.length === 0) {
+      userId = "BBC0001";
+    } else {
+      const currentId = latestUser[0].userId;
+      userId =
+        "BBC" + (parseInt(currentId.slice(3)) + 1).toString().padStart(4, "0");
+    }
+
+    newUserData.userId = userId;
 
     // passward salt & hash
     const salt = await bcrypt.genSalt(10);
