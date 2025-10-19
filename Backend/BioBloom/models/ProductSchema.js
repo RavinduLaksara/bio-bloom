@@ -21,7 +21,7 @@ const productSchema = new mongoose.Schema({
   displayPrice: {
     type: Number,
   },
-  images: [string],
+  images: [String],
   category: {
     type: String,
   },
