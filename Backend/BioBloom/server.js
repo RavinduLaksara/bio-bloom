@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import DbConnect from "./dbConnect.js";
 import userRoute from "./routes/UserRoute.js";
 import productRoute from "./routes/ProductRoute.js";
+import reviewRoute from "./routes/ReviewRoute.js";
 
 dotenv.config();
 const app = express();
@@ -20,3 +21,4 @@ app.listen(PORT, () => {
 // Routes
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1,products", productRoute);
+app.use("api/v1/reviews", reviewRoute);
